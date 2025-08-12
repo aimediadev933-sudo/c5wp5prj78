@@ -1,1 +1,1426 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTSTEM Phase-II - Real-time Spatiotemporal Emission Mapping</title>
+    <style>
+        :root {
+            --primary: #EF5350;
+            --secondary: #FF7043;
+            --body: #F8F3F0;
+            --text: #1D1D1B;
+            --secondary-dark: #9C3A26;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--body);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary-dark));
+            color: white;
+            padding: 3rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -25%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(255, 112, 67, 0.3) 0%, transparent 70%);
+            animation: pulse 18s ease-in-out infinite;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -20%;
+            width: 700px;
+            height: 700px;
+            background: conic-gradient(from 90deg, rgba(255, 255, 255, 0.15), transparent, rgba(255, 255, 255, 0.1));
+            animation: rotate 40s linear infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 0.4; }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            height: 85px;
+            width: auto;
+            background: white;
+            padding: 22px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 112, 67, 0.2), transparent);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .logo:hover {
+            transform: translateY(-18px) scale(1.15) rotateY(10deg);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo:hover::before {
+            opacity: 1;
+        }
+
+        .hero-text {
+            text-align: center;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .hero-text h1 {
+            font-size: clamp(3.5rem, 9vw, 6rem);
+            margin-bottom: 2rem;
+            font-weight: 900;
+            letter-spacing: -4px;
+            background: linear-gradient(45deg, #fff, #FF7043, #fff, #EF5350);
+            background-size: 400% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textWave 8s ease-in-out infinite;
+        }
+
+        @keyframes textWave {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-text .subtitle {
+            font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+            opacity: 0.95;
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .hero-text .phase-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1.5rem 3rem;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.3rem;
+            display: inline-block;
+            backdrop-filter: blur(25px);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        .hero-text .phase-info:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-8px) scale(1.05);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .hero-text .monitoring-features {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 4rem;
+        }
+
+        .monitoring-feature {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem 3rem;
+            border-radius: 40px;
+            font-weight: 800;
+            backdrop-filter: blur(20px);
+            border: 3px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .monitoring-feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            transition: left 1s ease;
+        }
+
+        .monitoring-feature:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-10px) scale(1.1);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .monitoring-feature:hover::before {
+            left: 100%;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--secondary-dark);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 8px 35px rgba(156, 58, 38, 0.6);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            color: white;
+            text-decoration: none;
+            padding: 2rem 4rem;
+            transition: all 0.6s ease;
+            font-weight: 900;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            transition: all 0.6s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 112, 67, 0.3), rgba(239, 83, 80, 0.3));
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--secondary);
+            transform: translateY(-4px);
+        }
+
+        .nav-item:hover::before {
+            width: 100%;
+        }
+
+        .nav-item:hover::after {
+            opacity: 1;
+        }
+
+        /* Main Content */
+        main {
+            padding: 7rem 0;
+        }
+
+        .section {
+            margin-bottom: 10rem;
+            background: white;
+            border-radius: 40px;
+            padding: 6rem;
+            box-shadow: 0 30px 100px rgba(239, 83, 80, 0.2);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(60px);
+            opacity: 0;
+            animation: slideInUp 2s ease forwards;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
+            background-size: 500% 100%;
+            animation: gradientWave 6s ease-in-out infinite;
+        }
+
+        @keyframes gradientWave {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section:nth-child(even) {
+            animation-delay: 0.6s;
+        }
+
+        .section:nth-child(odd) {
+            animation-delay: 0.3s;
+        }
+
+        .section h2 {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 5rem;
+            position: relative;
+            font-weight: 900;
+        }
+
+        .section h3 {
+            font-size: 2.5rem;
+            color: var(--secondary-dark);
+            margin: 5rem 0 3rem 0;
+            font-weight: 900;
+        }
+
+        /* Air Quality Crisis */
+        .crisis-highlight {
+            background: linear-gradient(135deg, rgba(239, 83, 80, 0.15), rgba(255, 112, 67, 0.15));
+            padding: 6rem;
+            border-radius: 35px;
+            margin: 6rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crisis-highlight::before {
+            content: '';
+            position: absolute;
+            top: -80%;
+            left: -80%;
+            width: 260%;
+            height: 260%;
+            background: radial-gradient(circle, rgba(255, 112, 67, 0.1) 0%, transparent 70%);
+            animation: rotate 50s linear infinite;
+        }
+
+        .crisis-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 4rem;
+            margin: 5rem 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .crisis-stat {
+            background: white;
+            padding: 4rem;
+            border-radius: 25px;
+            text-align: center;
+            transition: all 0.7s ease;
+            border: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crisis-stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 112, 67, 0.25), transparent);
+            transition: left 1s ease;
+        }
+
+        .crisis-stat:hover {
+            transform: translateY(-25px) scale(1.05);
+            border-color: var(--secondary);
+            box-shadow: 0 40px 80px rgba(239, 83, 80, 0.35);
+        }
+
+        .crisis-stat:hover::before {
+            left: 100%;
+        }
+
+        .crisis-icon {
+            font-size: 6rem;
+            margin-bottom: 2.5rem;
+            display: block;
+        }
+
+        .crisis-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .crisis-desc {
+            font-size: 1.3rem;
+            color: var(--text);
+            line-height: 1.9;
+        }
+
+        /* Mobile Monitoring System */
+        .mobile-system {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 5rem;
+            margin: 6rem 0;
+        }
+
+        .system-component {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 5rem;
+            border-radius: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.8s ease;
+        }
+
+        .system-component::before {
+            content: '';
+            position: absolute;
+            top: -80%;
+            right: -80%;
+            width: 160%;
+            height: 160%;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            transition: all 0.8s ease;
+        }
+
+        .system-component:hover {
+            transform: translateY(-30px) scale(1.1);
+            box-shadow: 0 50px 100px rgba(239, 83, 80, 0.6);
+        }
+
+        .system-component:hover::before {
+            transform: scale(2) rotate(45deg);
+        }
+
+        .system-icon {
+            font-size: 6rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .system-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .system-desc {
+            position: relative;
+            z-index: 2;
+            line-height: 1.8;
+            font-size: 1.2rem;
+        }
+
+        /* Project Objectives */
+        .objectives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 4rem;
+            margin: 6rem 0;
+        }
+
+        .objective-card {
+            background: var(--body);
+            padding: 5rem;
+            border-radius: 30px;
+            border-left: 12px solid var(--primary);
+            transition: all 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .objective-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(239, 83, 80, 0.12), rgba(255, 112, 67, 0.12));
+            transition: width 0.8s ease;
+        }
+
+        .objective-card:hover {
+            transform: translateX(25px);
+            box-shadow: 0 30px 60px rgba(239, 83, 80, 0.25);
+            border-left-color: var(--secondary);
+        }
+
+        .objective-card:hover::before {
+            width: 100%;
+        }
+
+        .objective-card h4 {
+            color: var(--primary);
+            margin-bottom: 2.5rem;
+            font-size: 2rem;
+            font-weight: 900;
+            position: relative;
+            z-index: 2;
+        }
+
+        .objective-card p {
+            position: relative;
+            z-index: 2;
+            line-height: 1.8;
+            font-size: 1.3rem;
+        }
+
+        /* Activities Implementation */
+        .activities-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 4rem;
+            margin: 6rem 0;
+        }
+
+        .activity-card {
+            background: white;
+            padding: 4rem;
+            border-radius: 25px;
+            box-shadow: 0 20px 50px rgba(239, 83, 80, 0.15);
+            transition: all 0.6s ease;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 112, 67, 0.2), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-20px) scale(1.03);
+            border-color: var(--secondary);
+            box-shadow: 0 35px 70px rgba(239, 83, 80, 0.3);
+        }
+
+        .activity-card:hover::before {
+            left: 100%;
+        }
+
+        .activity-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .activity-desc {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--text);
+        }
+
+        /* Outcomes & Impact */
+        .outcomes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 4rem;
+            margin: 6rem 0;
+        }
+
+        .outcome-item {
+            background: linear-gradient(135deg, var(--secondary-dark), var(--primary));
+            color: white;
+            padding: 5rem;
+            border-radius: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.8s ease;
+        }
+
+        .outcome-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: translateX(-100%);
+            transition: transform 1.2s ease;
+        }
+
+        .outcome-item:hover::before {
+            transform: translateX(100%);
+        }
+
+        .outcome-item:hover {
+            transform: scale(1.15);
+        }
+
+        .outcome-icon {
+            font-size: 5rem;
+            margin-bottom: 3rem;
+            display: block;
+        }
+
+        .outcome-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+        }
+
+        .outcome-desc {
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+
+        /* Partnership Network */
+        .partners-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin: 5rem 0;
+        }
+
+        .partner-card {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white;
+            padding: 4rem;
+            border-radius: 25px;
+            text-align: center;
+            transition: all 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .partner-card::before {
+            content: '';
+            position: absolute;
+            top: -60%;
+            right: -60%;
+            width: 120%;
+            height: 120%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.6s ease;
+        }
+
+        .partner-card:hover {
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 0 30px 60px rgba(239, 83, 80, 0.4);
+        }
+
+        .partner-card:hover::before {
+            transform: scale(1.5) rotate(45deg);
+        }
+
+        .partner-name {
+            font-size: 1.6rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .partner-role {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* SDG Section */
+        .sdg-environmental {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin: 6rem 0;
+        }
+
+        .sdg-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 4rem;
+            border-radius: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.7s ease;
+        }
+
+        .sdg-card::before {
+            content: '';
+            position: absolute;
+            top: -200%;
+            left: 0;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.25);
+            transition: top 0.7s ease;
+        }
+
+        .sdg-card:hover {
+            transform: translateY(-20px) scale(1.08);
+        }
+
+        .sdg-card:hover::before {
+            top: 0;
+        }
+
+        .sdg-number {
+            font-size: 4rem;
+            font-weight: 900;
+            display: block;
+            margin-bottom: 2.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sdg-title {
+            position: relative;
+            z-index: 2;
+            font-weight: 800;
+            font-size: 1.6rem;
+        }
+
+        /* Future Vision */
+        .future-vision {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 8rem;
+            border-radius: 40px;
+            text-align: center;
+            margin: 8rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .future-vision::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            animation: rotate 60s linear infinite;
+        }
+
+        .future-vision h3 {
+            color: white;
+            font-size: 4rem;
+            margin-bottom: 4rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .future-vision p {
+            font-size: 1.8rem;
+            line-height: 2;
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--secondary-dark);
+            color: white;
+            text-align: center;
+            padding: 8rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 60%, rgba(255, 112, 67, 0.25) 100%);
+        }
+
+        .footer-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo-section {
+                gap: 35px;
+            }
+
+            .logo {
+                height: 75px;
+            }
+
+            .section {
+                padding: 4rem;
+            }
+
+            .hero-text .monitoring-features {
+                gap: 2.5rem;
+            }
+
+            .monitoring-feature {
+                padding: 1.2rem 2.5rem;
+                font-size: 0.9rem;
+            }
+
+            .nav-item {
+                padding: 1.8rem 3rem;
+                font-size: 0.9rem;
+            }
+
+            .mobile-system {
+                grid-template-columns: 1fr;
+            }
+
+            .objectives-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .crisis-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .hero-text h1 {
+                font-size: 3.2rem;
+            }
+
+            .hero-text .subtitle {
+                font-size: 1.4rem;
+            }
+
+            .section h2 {
+                font-size: 3.2rem;
+            }
+
+            .crisis-highlight {
+                padding: 4rem;
+            }
+
+            .future-vision {
+                padding: 5rem;
+            }
+
+            .future-vision h3 {
+                font-size: 2.8rem;
+            }
+
+            .future-vision p {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="images/logos/tein-logo.png" alt="TEIN CC" class="logo">
+                    <img src="images/logos/asia-connect-logo.png" alt="Asi@Connect" class="logo">
+                    <img src="images/logos/eu-logo.png" alt="European Union" class="logo">
+                </div>
+                <div class="hero-text">
+                    <h1>RTSTEM Phase-II</h1>
+                    <p class="subtitle">Real-time Spatiotemporal Emission Mapping for Air Quality Monitoring</p>
+                    <div class="phase-info">WP5 Project - 5th Call - Pakistan</div>
+                    <div class="monitoring-features">
+                        <span class="monitoring-feature">Real-time Monitoring</span>
+                        <span class="monitoring-feature">Mobile Sensors</span>
+                        <span class="monitoring-feature">AQI Dashboard</span>
+                        <span class="monitoring-feature">Policy Support</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <div class="nav-container">
+                <a href="#overview" class="nav-item">Overview</a>
+                <a href="#crisis" class="nav-item">Air Crisis</a>
+                <a href="#system" class="nav-item">System</a>
+                <a href="#outcomes" class="nav-item">Outcomes</a>
+                <a href="#impact" class="nav-item">Impact</a>
+                <a href="#future" class="nav-item">Future</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <section id="overview" class="section">
+                <h2>Addressing Pakistan's Air Quality Crisis</h2>
+                <p>Air pollution poses a critical threat to public health and environmental sustainability, particularly in South Asia where Pakistan's Lahore ranks among the world's most polluted cities. The RTSTEM Phase-II project represents a comprehensive response to this environmental emergency, deploying an innovative hybrid network of low-cost air quality sensors to create real-time spatiotemporal emissions mapping across urban Lahore.</p>
+
+                <div class="crisis-highlight">
+                    <h3 style="position: relative; z-index: 2; color: var(--primary); font-size: 3rem; margin-bottom: 3rem;">Environmental Emergency Response</h3>
+                    <div class="crisis-stats">
+                        <div class="crisis-stat">
+                            <div class="crisis-icon">🏭</div>
+                            <div class="crisis-title">Lahore Air Crisis</div>
+                            <div class="crisis-desc">Ranked among the world's most polluted cities, requiring immediate intervention and comprehensive monitoring solutions.</div>
+                        </div>
+                        <div class="crisis-stat">
+                            <div class="crisis-icon">📡</div>
+                            <div class="crisis-title">Hybrid Sensor Network</div>
+                            <div class="crisis-desc">Innovative combination of stationary and mobile sensors mounted on electric 3-wheelers for comprehensive coverage.</div>
+                        </div>
+                        <div class="crisis-stat">
+                            <div class="crisis-icon">⚡</div>
+                            <div class="crisis-title">Real-time Analysis</div>
+                            <div class="crisis-desc">Continuous 24/7 data collection and processing to support immediate policy responses and public health alerts.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Project Advancement from Phase-I</h3>
+                <p>Building on the successful foundation of Phase-I, this enhanced iteration addresses critical limitations including biased "on-road" data collection and limited area coverage. RTSTEM Phase-II emphasizes advanced sensor customization, comprehensive platform redesign, and strengthened international collaboration to make air quality data more accessible and actionable for policymakers, researchers, and the public.</p>
+
+                <h3>Core Project Objectives</h3>
+                <div class="objectives-grid">
+                    <div class="objective-card">
+                        <h4>Enhanced Spatial Resolution</h4>
+                        <p>Develop and deploy a low-cost, high-resolution air quality monitoring system that provides unprecedented spatial and temporal coverage of emission patterns across Lahore's diverse urban landscape.</p>
+                    </div>
+                    <div class="objective-card">
+                        <h4>24/7 Mobile Monitoring</h4>
+                        <p>Enable continuous data collection through electric 3-wheelers equipped with advanced sensors, ensuring comprehensive coverage during all hours of operation.</p>
+                    </div>
+                    <div class="objective-card">
+                        <h4>IoT Dashboard Development</h4>
+                        <p>Create an interactive, real-time emissions mapping dashboard and API system that transforms raw sensor data into actionable insights for stakeholders.</p>
+                    </div>
+                    <div class="objective-card">
+                        <h4>Sustainable Integration Model</h4>
+                        <p>Establish a financially sustainable framework by integrating monitoring systems with ride-hailing services, ensuring long-term operational viability.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="crisis" class="section">
+                <h2>Environmental Crisis & Health Impact</h2>
+                <p>The air quality crisis in Lahore represents one of the most severe environmental health challenges in South Asia, with pollution levels consistently exceeding World Health Organization safety standards by significant margins. This project directly addresses the urgent need for comprehensive, real-time monitoring to support evidence-based interventions.</p>
+
+                <div class="crisis-stats">
+                    <div class="crisis-stat">
+                        <div class="crisis-icon">🚨</div>
+                        <div class="crisis-title">Public Health Emergency</div>
+                        <div class="crisis-desc">Air pollution levels in Lahore regularly exceed WHO safety standards, creating severe respiratory health risks for millions of residents and requiring immediate monitoring intervention.</div>
+                    </div>
+                    <div class="crisis-stat">
+                        <div class="crisis-icon">🌍</div>
+                        <div class="crisis-title">Regional Impact</div>
+                        <div class="crisis-desc">Environmental pollution patterns extend beyond city boundaries, affecting regional air quality and requiring coordinated monitoring across South Asian urban centers.</div>
+                    </div>
+                    <div class="crisis-stat">
+                        <div class="crisis-icon">📊</div>
+                        <div class="crisis-title">Data-Driven Solutions</div>
+                        <div class="crisis-desc">Comprehensive real-time monitoring enables evidence-based policy development and targeted interventions to address specific pollution sources and patterns.</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="system" class="section">
+                <h2>Advanced Monitoring System</h2>
+                <p>The RTSTEM Phase-II system represents a technological breakthrough in urban air quality monitoring, combining stationary and mobile sensor networks with advanced data analytics to provide comprehensive, real-time emissions mapping across Lahore's complex urban environment.</p>
+
+                <div class="mobile-system">
+                    <div class="system-component">
+                        <div class="system-icon">📍</div>
+                        <div class="system-title">Stationary Sensor Network</div>
+                        <div class="system-desc">8 strategically positioned low-cost air quality sensors providing continuous baseline monitoring across key locations in Lahore, including residential areas, industrial zones, and commercial districts.</div>
+                    </div>
+                    <div class="system-component">
+                        <div class="system-icon">🛺</div>
+                        <div class="system-title">Mobile E-Rickshaw Fleet</div>
+                        <div class="system-desc">11 electric 3-wheelers equipped with advanced sensors and solar-powered systems, providing dynamic monitoring coverage and reaching underserved urban areas.</div>
+                    </div>
+                    <div class="system-component">
+                        <div class="system-icon">💻</div>
+                        <div class="system-title">AirLenz Dashboard</div>
+                        <div class="system-desc">Interactive R-based platform with real-time AQI mapping, data visualization, trend analysis, and API integration for stakeholder access and decision-making support.</div>
+                    </div>
+                    <div class="system-component">
+                        <div class="system-icon">⚡</div>
+                        <div class="system-title">Real-time Analytics</div>
+                        <div class="system-desc">Advanced statistical modeling using WHO and EPA standards for pollutant-specific AQI indicators and spatiotemporal heatmap analysis for immediate response capabilities.</div>
+                    </div>
+                </div>
+
+                <h3>Key Implementation Activities</h3>
+                <div class="activities-showcase">
+                    <div class="activity-card">
+                        <div class="activity-title">Sensor Deployment</div>
+                        <div class="activity-desc">Installation of 19 low-cost air quality sensors: 8 stationary units across Lahore and 11 mobile units on electric 3-wheelers for comprehensive spatial coverage.</div>
+                    </div>
+                    <div class="activity-card">
+                        <div class="activity-title">Vehicle Customization</div>
+                        <div class="activity-desc">Procurement and customization of 12 electric vehicles with solar power systems and battery integration to support mobile sensor operations.</div>
+                    </div>
+                    <div class="activity-card">
+                        <div class="activity-title">Platform Development</div>
+                        <div class="activity-desc">Transition to R-based backend system with interactive AirLenz dashboard, featuring real-time visualization and API development for data accessibility.</div>
+                    </div>
+                    <div class="activity-card">
+                        <div class="activity-title">Stakeholder Engagement</div>
+                        <div class="activity-desc">Workshops with World Bank, Climate & Clean Air Conference participation, and showcasing sessions to build policy support and research collaboration.</div>
+                    </div>
+                    <div class="activity-card">
+                        <div class="activity-title">International Collaboration</div>
+                        <div class="activity-desc">Partnership development through IVLP (U.S. State Department), CCAC, and regional research networks for knowledge sharing and technical advancement.</div>
+                    </div>
+                    <div class="activity-card">
+                        <div class="activity-title">Data Integration</div>
+                        <div class="activity-desc">Statistical modeling and heatmap development using international standards for pollutant analysis and spatiotemporal pattern identification.</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="outcomes" class="section">
+                <h2>Key Outcomes & Achievements</h2>
+
+                <div class="outcomes-grid">
+                    <div class="outcome-item">
+                        <div class="outcome-icon">📱</div>
+                        <div class="outcome-title">AirLenz Dashboard</div>
+                        <div class="outcome-desc">Web-based real-time tool displaying comprehensive sensor readings, pollution trends, and geo-spatial distribution across Lahore.</div>
+                    </div>
+                    <div class="outcome-item">
+                        <div class="outcome-icon">📍</div>
+                        <div class="outcome-title">Expanded Coverage</div>
+                        <div class="outcome-desc">AQI measurement capabilities extended to underserved areas including residential zones, dump sites, and industrial belts.</div>
+                    </div>
+                    <div class="outcome-item">
+                        <div class="outcome-icon">🎯</div>
+                        <div class="outcome-title">Enhanced Reliability</div>
+                        <div class="outcome-desc">Improved correlation and consistency of low-cost sensors compared to traditional public monitoring stations.</div>
+                    </div>
+                    <div class="outcome-item">
+                        <div class="outcome-icon">🏛️</div>
+                        <div class="outcome-title">Policy Integration</div>
+                        <div class="outcome-desc">Data successfully integrated into decision-making processes through partnerships with World Bank and Environmental Protection Department.</div>
+                    </div>
+                    <div class="outcome-item">
+                        <div class="outcome-icon">👥</div>
+                        <div class="outcome-title">Capacity Building</div>
+                        <div class="outcome-desc">Team training completed in air monitoring technologies, data analytics, and community engagement methodologies.</div>
+                    </div>
+                    <div class="outcome-item">
+                        <div class="outcome-icon">🌐</div>
+                        <div class="outcome-title">Regional Impact</div>
+                        <div class="outcome-desc">Knowledge sharing across South Asia with potential for replication in other urban centers facing similar air quality challenges.</div>
+                    </div>
+                </div>
+
+                <h3>Partnership Network</h3>
+                <div class="partners-showcase">
+                    <div class="partner-card">
+                        <div class="partner-name">LUMS</div>
+                        <div class="partner-role">Lead Institution - Technical Development</div>
+                    </div>
+                    <div class="partner-card">
+                        <div class="partner-name">NeuBolt Energy</div>
+                        <div class="partner-role">E-Vehicle Integration Partner</div>
+                    </div>
+                    <div class="partner-card">
+                        <div class="partner-name">PERN, HEC</div>
+                        <div class="partner-role">Network Infrastructure Support</div>
+                    </div>
+                    <div class="partner-card">
+                        <div class="partner-name">Ministry of Climate Change</div>
+                        <div class="partner-role">Government Policy Partner</div>
+                    </div>
+                    <div class="partner-card">
+                        <div class="partner-name">University of Malaya</div>
+                        <div class="partner-role">Regional Research Collaboration</div>
+                    </div>
+                    <div class="partner-card">
+                        <div class="partner-name">North South University</div>
+                        <div class="partner-role">Bangladesh Research Partner</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="impact" class="section">
+                <h2>Impact & Sustainable Development</h2>
+
+                <h3>Contributing to Sustainable Development Goals</h3>
+                <div class="sdg-environmental">
+                    <div class="sdg-card">
+                        <span class="sdg-number">SDG 3</span>
+                        <span class="sdg-title">Good Health and Well-being</span>
+                    </div>
+                    <div class="sdg-card">
+                        <span class="sdg-number">SDG 11</span>
+                        <span class="sdg-title">Sustainable Cities and Communities</span>
+                    </div>
+                    <div class="sdg-card">
+                        <span class="sdg-number">SDG 13</span>
+                        <span class="sdg-title">Climate Action</span>
+                    </div>
+                    <div class="sdg-card">
+                        <span class="sdg-number">SDG 17</span>
+                        <span class="sdg-title">Partnerships for the Goals</span>
+                    </div>
+                </div>
+
+                <h3>Challenges & Strategic Solutions</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 5rem; margin: 5rem 0;">
+                    <div style="background: linear-gradient(135deg, rgba(255, 112, 67, 0.15), rgba(239, 83, 80, 0.1)); padding: 4rem; border-radius: 30px; border-left: 10px solid var(--secondary);">
+                        <h4 style="color: var(--secondary-dark); margin-bottom: 3rem; font-size: 2rem;">Implementation Challenges</h4>
+                        <div style="space-y: 2.5rem;">
+                            <div style="margin: 2.5rem 0; padding: 3rem; background: rgba(255, 255, 255, 0.8); border-radius: 18px;">
+                                <strong>On-Road Data Bias:</strong> Emissions measurements near traffic hotspots created skewed ambient AQI data, requiring strategic sensor placement adjustments.
+                            </div>
+                            <div style="margin: 2.5rem 0; padding: 3rem; background: rgba(255, 255, 255, 0.8); border-radius: 18px;">
+                                <strong>Coverage Limitations:</strong> Certain urban zones lacked adequate public transport coverage for mobile sensor deployment, requiring alternative strategies.
+                            </div>
+                            <div style="margin: 2.5rem 0; padding: 3rem; background: rgba(255, 255, 255, 0.8); border-radius: 18px;">
+                                <strong>Operational Constraints:</strong> Public transport operating schedules limited data collection to daytime hours, affecting 24/7 monitoring goals.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, rgba(239, 83, 80, 0.15), rgba(156, 58, 38, 0.1)); padding: 4rem; border-radius: 30px; border-left: 10px solid var(--primary);">
+                        <h4 style="color: var(--primary); margin-bottom: 3rem; font-size: 2rem;">Innovative Solutions</h4>
+                        <div style="space-y: 2.5rem;">
+                            <div style="margin: 2.5rem 0; padding: 3rem; background: rgba(255, 255, 255, 0.8); border-radius: 18px;">
+                                <strong>Hybrid Network Design:</strong> Combination of stationary and mobile sensors to provide balanced coverage and reduce traffic-related bias in ambient measurements.
+                            </div>
+                            <div style="margin: 2.5rem 0; padding: 3rem; background: rgba(255, 255, 255, 0.8); border-radius: 18px;">
+                                <strong>E-Rickshaw Integration:</strong> Custom electric vehicle deployment with solar power systems to extend monitoring capabilities beyond public transport limitations.
+                            </div>
+                            <div style="margin: 2.5rem 0; padding: 3rem; background: rgba(255, 255, 255, 0.8); border-radius: 18px;">
+                                <strong>Sustainable Funding Model:</strong> Integration with ride-hailing services to generate revenue for long-term operational sustainability and maintenance.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="future" class="section">
+                <h2>Future Expansion & Sustainability</h2>
+
+                <h3>Scaling Across Pakistan</h3>
+                <p>The success of RTSTEM Phase-II in Lahore provides a proven model for expansion to other major Pakistani cities including Karachi and Islamabad. This scaling strategy will create a comprehensive national air quality monitoring network, enabling coordinated policy responses and regional environmental management.</p>
+
+                <h3>Technology Enhancement</h3>
+                <p>Future development phases will integrate advanced pollutant detection capabilities including PM1 particles, Volatile Organic Compounds (VOCs), and Greenhouse Gas (GHG) tracking. These enhancements will provide even more comprehensive environmental monitoring and support climate action initiatives.</p>
+
+                <div class="future-vision">
+                    <h3>Vision for Clean Air Pakistan</h3>
+                    <p>The RTSTEM project is pioneering a new era of environmental monitoring in Pakistan, where real-time data drives immediate policy action and community awareness. This foundation will transform how Pakistani cities address air pollution, enabling evidence-based interventions, supporting public health protection, and contributing to national climate action goals. Through sustained monitoring and community engagement, we envision cleaner, healthier urban environments across South Asia.</p>
+                </div>
+
+                <h3>Sustainable Development Initiatives</h3>
+                <div class="objectives-grid">
+                    <div class="objective-card">
+                        <h4>Mobile App Launch</h4>
+                        <p>Development of AirLenz mobile application providing public access to real-time air quality data, health recommendations, and pollution alerts for community empowerment.</p>
+                    </div>
+                    <div class="objective-card">
+                        <h4>Revenue-Based Sustainability</h4>
+                        <p>Implementation of sustainable funding models using revenue from e-rickshaw ride services to maintain monitoring operations beyond grant funding periods.</p>
+                    </div>
+                    <div class="objective-card">
+                        <h4>Regional Knowledge Network</h4>
+                        <p>Expansion of collaborative partnerships across South Asia for knowledge sharing, technical advancement, and coordinated environmental monitoring strategies.</p>
+                    </div>
+                    <div class="objective-card">
+                        <h4>Policy Integration Framework</h4>
+                        <p>Development of standardized frameworks for integrating real-time air quality data into municipal and national environmental policy decision-making processes.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h3>RTSTEM Phase-II</h3>
+                <p>Transforming air quality monitoring in Pakistan through innovative sensor networks and real-time data analytics for healthier, more sustainable urban environments.</p>
+                <p style="margin-top: 4rem; opacity: 0.9; font-size: 1.4rem;">
+                    Leading environmental protection efforts in Lahore, Pakistan<br>
+                    Building the foundation for cleaner air across South Asia
+                </p>
+                <p style="margin-top: 2.5rem; font-size: 1.1rem; opacity: 0.8;">
+                    WP5 Project - 5th Call | Real-time Monitoring • Mobile Sensors • Policy Support • Sustainable Cities
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -200px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections for animations
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Enhanced interactive effects for crisis stats
+        document.querySelectorAll('.crisis-stat').forEach(stat => {
+            stat.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-25px) scale(1.05)';
+                this.style.borderColor = 'var(--secondary)';
+                this.style.boxShadow = '0 40px 80px rgba(239, 83, 80, 0.35)';
+            });
+            
+            stat.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.borderColor = 'transparent';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // System component interactions
+        document.querySelectorAll('.system-component').forEach(component => {
+            component.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-30px) scale(1.1)';
+                this.style.boxShadow = '0 50px 100px rgba(239, 83, 80, 0.6)';
+            });
+            
+            component.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Objective card hover effects
+        document.querySelectorAll('.objective-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(25px)';
+                this.style.boxShadow = '0 30px 60px rgba(239, 83, 80, 0.25)';
+                this.style.borderLeftColor = 'var(--secondary)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+                this.style.boxShadow = 'none';
+                this.style.borderLeftColor = 'var(--primary)';
+            });
+        });
+
+        // Activity card interactions
+        document.querySelectorAll('.activity-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-20px) scale(1.03)';
+                this.style.borderColor = 'var(--secondary)';
+                this.style.boxShadow = '0 35px 70px rgba(239, 83, 80, 0.3)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.borderColor = 'transparent';
+                this.style.boxShadow = '0 20px 50px rgba(239, 83, 80, 0.15)';
+            });
+        });
+
+        // Outcome item effects
+        document.querySelectorAll('.outcome-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.15)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Partner card effects
+        document.querySelectorAll('.partner-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-15px) scale(1.05)';
+                this.style.boxShadow = '0 30px 60px rgba(239, 83, 80, 0.4)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // SDG card effects
+        document.querySelectorAll('.sdg-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-20px) scale(1.08)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Progressive section loading animation
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.section');
+            const triggerBottom = window.innerHeight / 5 * 4;
+            
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                
+                if (sectionTop < triggerBottom) {
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // Initialize page animations and effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Stagger section animations
+            setTimeout(() => {
+                document.querySelectorAll('.section').forEach((section, index) => {
+                    setTimeout(() => {
+                        section.style.opacity = '1';
+                        section.style.transform = 'translateY(0)';
+                    }, index * 400);
+                });
+            }, 800);
+
+            // Add floating animation to header logos
+            document.querySelectorAll('.logo').forEach((logo, index) => {
+                logo.style.animationDelay = `${index * 0.6}s`;
+            });
+        });
+
+        // Create environmental monitoring background effects
+        function createMonitoringEffects() {
+            const header = document.querySelector('header');
+            for (let i = 0; i < 6; i++) {
+                const element = document.createElement('div');
+                element.style.position = 'absolute';
+                element.style.width = `${50 + Math.random() * 80}px`;
+                element.style.height = `${50 + Math.random() * 80}px`;
+                element.style.background = 'rgba(255, 255, 255, 0.05)';
+                element.style.borderRadius = '50%';
+                element.style.top = Math.random() * 100 + '%';
+                element.style.left = Math.random() * 100 + '%';
+                element.style.animation = `float ${15 + Math.random() * 10}s ease-in-out infinite`;
+                element.style.animationDelay = Math.random() * 10 + 's';
+                header.appendChild(element);
+            }
+        }
+
+        // Initialize environmental monitoring effects
+        createMonitoringEffects();
+    </script>
+</body>
+</html>
